@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import shlex
 from datetime import datetime
 from pathlib import Path
 from typing import Sequence
@@ -130,6 +131,11 @@ def main() -> None:
     command = args.command
     if command and command[0] == "--":
         command = command[1:]
+    if command and len(command) == 1:
+        try:
+            command = shlex.split(command[0])
+        except ValueError as exc:
+            parser.error(f"Could not parse command: {exc}")
     if not command:
         parser.error("You must provide a command to run after '--'.")
     exit_code = asyncio.run(run_bridge(command, args.input.expanduser(), args.output.expanduser()))
